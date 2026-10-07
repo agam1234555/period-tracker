@@ -1,11 +1,8 @@
-import { MIN_TRACKED_CYCLES, PHASE_TEXT, type Insights } from '../insights'
-
-const pct = (x: number) => `${Math.round(x * 100)}%`
+import { MIN_TRACKED_CYCLES, PHASE_TEXT, symptomDetail, type Insights } from '../insights'
 
 export function InsightsCard({ insights: i }: { insights: Insights }) {
   return (
     <section className="card">
-      <div className="lbl">Insights</div>
       {!i.ready ? (
         <p>
           Patterns appear once you’ve logged symptoms or mood in at least {MIN_TRACKED_CYCLES} completed cycles.
@@ -18,7 +15,7 @@ export function InsightsCard({ insights: i }: { insights: Insights }) {
             <ul className="ins">
               {i.symptoms.map((s) => (
                 <li key={s.key}>
-                  <strong>{s.label}</strong> clusters {PHASE_TEXT[s.phase]}: {pct(s.share)} of the days you logged it, versus {pct(s.expected)} of the cycle ({s.phaseCycles} cycles).
+                  <strong>{s.label}</strong>: {symptomDetail(s)}
                 </li>
               ))}
             </ul>

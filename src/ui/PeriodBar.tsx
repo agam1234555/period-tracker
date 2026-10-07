@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import type { Days } from '../engine/analyze'
+import { tap } from './haptics'
 import { endPeriod, startPeriod, type Change, type InProgress } from '../periodLogging'
 
 const fmt = (n: number) => new Date(n * 864e5).toLocaleDateString(undefined, { month: 'short', day: 'numeric', timeZone: 'UTC' })
@@ -10,12 +11,14 @@ export function PeriodBar({ days, today, sel, ongoing, onApply }: Props) {
   const [error, setError] = useState<string | null>(null)
 
   const end = (day: number) => {
+    tap(14)
     const r = endPeriod(days, day)
     if (!r.ok) return setError(r.error)
     setError(null)
     onApply(r.changes)
   }
   const start = () => {
+    tap(14)
     setError(null)
     onApply(startPeriod(days, sel))
   }

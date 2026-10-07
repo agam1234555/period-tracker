@@ -26,6 +26,14 @@ export const MAX_CYCLE = 60
 export type Phase = 'period' | 'pre' | 'rest'
 export const PHASE_TEXT: Record<Phase, string> = { period: 'during your period', pre: `in the ${PRE_DAYS} days before your period`, rest: 'between periods' }
 
+const pct = (x: number) => `${Math.round(x * 100)}%`
+
+/** Text shown after the symptom name, e.g. "concentrated during your period. 50% of the days you logged it fall there, versus 19% of the cycle (seen in 2 cycles)."
+ *  Deliberately has no verb that must agree with the name ("Cramps" is plural, "Headache" is not). */
+export function symptomDetail(s: Pick<SymptomInsight, 'phase' | 'share' | 'expected' | 'phaseCycles'>): string {
+  return `concentrated ${PHASE_TEXT[s.phase]}. ${pct(s.share)} of the days you logged it fall there, versus ${pct(s.expected)} of the cycle (seen in ${s.phaseCycles} cycles).`
+}
+
 export interface SymptomInsight {
   key: string; label: string
   days: number              // logged days in tracked cycles

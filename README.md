@@ -4,7 +4,7 @@ React + TypeScript + Vite, `vite-plugin-pwa`, IndexedDB via Dexie. All data stay
 
 ## Run
     npm install
-    npm test          # 109 tests: TS engine vs Python reference, blend, forecast glue
+    npm test          # full suite: TS engine vs Python reference, blend, forecast, UI logic
     npm run dev       # http://localhost:5173
     npm run build     # production build + service worker (dist/)
     npm run preview   # test the installable PWA build locally
@@ -17,13 +17,19 @@ React + TypeScript + Vite, `vite-plugin-pwa`, IndexedDB via Dexie. All data stay
 - `scripts/make_golden.py` regenerates fixtures: `npm run golden` (needs Python 3).
 - `src/engine/blend.ts` weighting of cycle-length vs ovulation prediction + range rule (settings in `DEFAULT_CONFIG`). Python reference: `python/blend_ref.py`; fixtures `__fixtures__/blend_fixtures.json`.
 - `src/engine/forecast.ts` glue the UI calls: `forecast(days, today)`. Rebuilds the per-user error track from the logs on every call (replay), so edits/undo can never leave stale state.
-- `src/db.ts` Dexie storage: `loadDays()`, `saveDay()`.
-- `src/App.tsx` + `src/ui/` real UI: forecast card, month calendar (period / predicted / fertile / ovulation), day editor (period, flow, LH, basal temp), undo.
+- `src/db.ts` Dexie storage (`loadDays`, `saveDays` in one transaction, meta values).
+- `src/App.tsx` + `src/ui/` the UI: forecast card, start/end period bar, month calendar with markers, collapsible day editor (period, flow, symptoms, mood, optional temperature and LH), insights card, undo.
+- `src/periodLogging.ts` start/end period logic (tap once to start, once to end; days between are filled).
+- `src/symptoms.ts` fixed symptom checklist + 1-5 mood. Keys are stored in data and must never be renamed.
+- `src/insights.ts` where symptoms and mood fall in the cycle (reads logs only; never feeds the forecast).
+- `src/backup.ts`, `src/backupReminder.ts`, `src/persist.ts` export/restore, reminder rule, storage persistence request.
 - `research/` Phase 1 backtest script and results workbook (evidence behind the engine constants).
 
 ## Status
-Stage 1 done: forecast, calendar, period/flow/LH/temperature logging, undo, offline install.
-Stage 2 (not built): symptom + mood logging, insights, backup/restore + reminder, LH as a third predictor in the blend.
+Built: forecast, calendar, start/end period logging, flow, symptoms, mood, insights, backup/restore, offline install.
+Temperature and LH are optional extras for the few people who measure them; the forecast works from period dates alone.
+Not planned: LH as a third predictor (most people do not measure LH, so it would serve a small group).
+Ideas for later: three-state LH field, symptom severity, a "merge tags" style cleanup if free text is ever added.
 
 ## Changing the engine (rule)
 1. Edit `python/analyze.py` and `src/engine/analyze.ts` together.

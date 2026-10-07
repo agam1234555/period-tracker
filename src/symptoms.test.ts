@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { canonicalSymptoms, isMood, isSymptomKey, MOODS, SYMPTOM_GROUPS, SYMPTOMS, toggleSymptom } from './symptoms'
+import { symptomSummary, canonicalSymptoms, isMood, isSymptomKey, MOODS, SYMPTOM_GROUPS, SYMPTOMS, toggleSymptom } from './symptoms'
 
 describe('symptom catalogue', () => {
   it('keys are unique, snake_case, and every group is declared', () => {
@@ -35,5 +35,22 @@ describe('toggleSymptom', () => {
     expect(canonicalSymptoms(['acne', 'x', 'cramps', 'acne'])).toEqual(['cramps', 'acne'])
     expect(isSymptomKey('cramps')).toBe(true)
     expect(isSymptomKey('Cramps')).toBe(false)
+  })
+})
+
+describe('symptomSummary', () => {
+  it('nothing logged', () => {
+    expect(symptomSummary(undefined, undefined)).toBe('Nothing logged')
+    expect(symptomSummary([], undefined)).toBe('Nothing logged')
+  })
+  it('lists symptoms in canonical order, then mood', () => {
+    expect(symptomSummary(['fatigue', 'cramps'], 4)).toBe('Cramps, Fatigue · Mood: Good')
+    expect(symptomSummary(undefined, 1)).toBe('Mood: Low')
+  })
+  it('caps the list and says how many more', () => {
+    expect(symptomSummary(['cramps', 'headache', 'back_pain', 'acne', 'spotting'], undefined)).toBe('Cramps, Headache, Back pain +2 more')
+  })
+  it('ignores unknown keys and invalid moods', () => {
+    expect(symptomSummary(['dizzy'], 9)).toBe('Nothing logged')
   })
 })

@@ -45,3 +45,13 @@ export function toggleSymptom(current: readonly string[] | undefined, key: strin
 export function canonicalSymptoms(list: readonly string[] | undefined): string[] {
   return [...new Set((list ?? []).filter(isSymptomKey))].sort((a, b) => ORDER.get(a)! - ORDER.get(b)!)
 }
+
+const LABEL = new Map(SYMPTOMS.map((d) => [d.key, d.label] as const))
+
+/** One-line description of what was logged, e.g. "Cramps, Headache · Mood: Good" (shown on the collapsed section). */
+export function symptomSummary(s: readonly string[] | undefined, m: number | undefined, maxNames = 3): string {
+  const names = canonicalSymptoms(s).map((k) => LABEL.get(k)!)
+  const shown = names.slice(0, maxNames).join(', ') + (names.length > maxNames ? ` +${names.length - maxNames} more` : '')
+  const mood = isMood(m) ? `Mood: ${MOODS[m - 1].label}` : ''
+  return [shown, mood].filter(Boolean).join(' · ') || 'Nothing logged'
+}

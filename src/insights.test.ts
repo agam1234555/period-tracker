@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { computeInsights, MIN_ENRICHMENT, MIN_SHARE, MIN_TRACKED_CYCLES } from './insights'
+import { computeInsights, MIN_ENRICHMENT, MIN_SHARE, MIN_TRACKED_CYCLES, symptomDetail } from './insights'
 import { dayNum, isoDay, type DayRecord, type Days } from './engine/analyze'
 
 const BASE = dayNum('2026-01-01')
@@ -140,5 +140,17 @@ describe('purity', () => {
     const copy = JSON.parse(JSON.stringify(d))
     computeInsights(d)
     expect(d).toEqual(copy)
+  })
+})
+
+describe('symptomDetail wording', () => {
+  it('reads naturally for each phase and rounds percentages', () => {
+    expect(symptomDetail({ phase: 'period', share: 0.5, expected: 0.1786, phaseCycles: 2 }))
+      .toBe('concentrated during your period. 50% of the days you logged it fall there, versus 18% of the cycle (seen in 2 cycles).')
+    expect(symptomDetail({ phase: 'pre', share: 1, expected: 0.1786, phaseCycles: 4 })).toMatch(/^concentrated in the 5 days before your period\. 100%/)
+    expect(symptomDetail({ phase: 'rest', share: 0.6, expected: 0.3, phaseCycles: 3 })).toMatch(/^concentrated between periods\./)
+  })
+  it('has no verb that must agree with the symptom name (Cramps vs Headache)', () => {
+    expect(symptomDetail({ phase: 'period', share: 0.5, expected: 0.2, phaseCycles: 2 })).not.toMatch(/\b(is|are|clusters?)\b/)
   })
 })
